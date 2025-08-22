@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>منظومة ملاك المحافظ</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      color: #333;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .result {
+      margin-top: 30px;
+    }
+
+    .entry {
+      padding: 10px;
+      background: #f9f9f9;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border-right: 5px solid #007bff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>منظومة ملاك المحافظ</h2>
+
+  <label for="name">اسم المالك</label>
+  <input type="text" id="name">
+
+  <label for="id">رقم البطاقة</label>
+  <input type="text" id="id">
+
+  <label for="wallet">رقم المحفظة</label>
+  <input type="text" id="wallet">
+
+  <button onclick="addOwner()">تسجيل المالك</button>
+
+  <hr>
+
+  <label for="search">بحث (بالاسم أو رقم البطاقة أو رقم المحفظة)</label>
+  <input type="text" id="search" oninput="searchOwners()">
+
+  <div class="result" id="results"></div>
+</div>
+
+<script>
+  let owners = JSON.parse(localStorage.getItem('owners')) || [];
+
+  function saveOwners() {
+    localStorage.setItem('owners', JSON.stringify(owners));
+  }
+
+  function addOwner() {
+    const name = document.getElementById('name').value.trim();
+    const id = document.getElementById('id').value.trim();
+    const wallet = document.getElementById('wallet').value.trim();
+
+    if (!name || !id || !wallet) {
+      alert('الرجاء تعبئة جميع الحقول.');
+      return;
+    }
+
+    owners.push({ name, id, wallet });
+    saveOwners();
+    clearFields();
+    searchOwners(); // عرض البيانات بعد التحديث
+  }
+
+  function clearFields() {
+    document.getElementById('name').value = '';
+    document.getElementById('id').value = '';
+    document.getElementById('wallet').value = '';
+  }
+
+  function searchOwners() {
+    const query = document.getElementById('search').value.toLowerCase();
+    const resultDiv = document.getElementById('results');
+    resultDiv.innerHTML = '';
+
+    const filtered = owners.filter(o =>
+      o.name.toLowerCase().includes(query) ||
+      o.id.includes(query) ||
+      o.wallet.includes(query)
+    );
+
+    if (filtered.length === 0) {
+      resultDiv.innerHTML = '<p>لا توجد نتائج.</p>';
+      return;
+    }
+
+    filtered.forEach(o => {
+      const entry = document.createElement('div');
+      entry.className = 'entry';
+      entry.innerHTML = `<strong>الاسم:</strong> ${o.name}<br>
+                         <strong>رقم البطاقة:</strong> ${o.id}<br>
+                         <strong>رقم المحفظة:</strong> ${o.wallet}`;
+      resultDiv.appendChild(entry);
+    });
+  }
+
+  // عرض كل البيانات عند أول تحميل
+  window.onload = searchOwners;
+</script>
+
+</body>
+</html>
